@@ -2,10 +2,10 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-_CHROMIUM_VERSION=108.0.5359.124
+_CHROMIUM_VERSION=109.0.5414.119
 TERMUX_PKG_VERSION=$_CHROMIUM_VERSION
 TERMUX_PKG_SRCURL=(https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$_CHROMIUM_VERSION.tar.xz)
-TERMUX_PKG_SHA256=(d48dfac2a61b14a5d7d2f460b09b70ef3ab88e27b82e3173938cb54eaa612a75)
+TERMUX_PKG_SHA256=(cbcdef5ee71acb53790ded3adef86871812b46e9f208dce8ec3f8ab04958be2d)
 TERMUX_PKG_DEPENDS="atk, cups, dbus, gtk3, krb5, libc++, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, libdrm, libjpeg-turbo, libpng, libwebp, libflac, fontconfig, freetype, zlib, libxml2, libxslt, libopus, libsnappy"
 # TODO: Split chromium-common and chromium-headless
 # TERMUX_PKG_DEPENDS+=", chromium-common"
@@ -166,8 +166,9 @@ use_system_libdrm = true
 use_system_libffi = true
 use_custom_libcxx = false
 use_allocator_shim = false
-use_allocator = \"none\"
-use_nss_certs = true
+use_partition_alloc_as_malloc = false
+enable_backup_ref_ptr_support = false
+enable_mte_checked_ptr_support = false
 use_nss_certs = true
 use_udev = false
 use_ozone = true
@@ -235,7 +236,7 @@ use_thin_lto = false
 
 termux_step_make() {
 	cd $TERMUX_PKG_BUILDDIR
-	ninja -C out/Release chromedriver chrome chrome_crashpad_handler headless_shell -k 0 || bash
+	ninja -C out/Release chromedriver chrome chrome_crashpad_handler headless_shell -k 0
 }
 
 termux_step_make_install() {
