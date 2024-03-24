@@ -2,10 +2,10 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-_CHROMIUM_VERSION=114.0.5735.198
+_CHROMIUM_VERSION=115.0.5790.170
 TERMUX_PKG_VERSION=$_CHROMIUM_VERSION
 TERMUX_PKG_SRCURL=(https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$_CHROMIUM_VERSION.tar.xz)
-TERMUX_PKG_SHA256=(a9f3440feeab51f56b199797b83b458ca545bf67e114c62b21470fadd5a41dea)
+TERMUX_PKG_SHA256=(ff9862d2e748c56940ffc222c2e6b2066a19ea1de0bc3fd99ed81c0b231172c0)
 TERMUX_PKG_DEPENDS="atk, cups, dbus, gtk3, krb5, libc++, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, libdrm, libjpeg-turbo, libpng, libwebp, libflac, fontconfig, freetype, zlib, libxml2, libxslt, libopus, libsnappy"
 # TODO: Split chromium-common and chromium-headless
 # TERMUX_PKG_DEPENDS+=", chromium-common"
@@ -197,6 +197,8 @@ enable_nacl = false
 is_cfi = false
 use_cfi_icall = false
 use_thin_lto = false
+# Disable rust
+enable_rust = false
 " > $_common_args_file
 
 	if [ "$TERMUX_ARCH" = "arm" ]; then
