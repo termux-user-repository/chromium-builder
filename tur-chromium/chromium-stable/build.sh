@@ -2,10 +2,10 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-_CHROMIUM_VERSION=124.0.6367.60
+_CHROMIUM_VERSION=124.0.6367.78
 TERMUX_PKG_VERSION=$_CHROMIUM_VERSION
 TERMUX_PKG_SRCURL=(https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$_CHROMIUM_VERSION.tar.xz)
-TERMUX_PKG_SHA256=(ebd553527149cb8477a522df90acd6cea2388a6f431e2db589a0301df1d0cae2)
+TERMUX_PKG_SHA256=(697ea9e8591e0a74deea260a50441711b1ea499ca19e91d6012c5b4d200d1acf)
 TERMUX_PKG_DEPENDS="atk, cups, dbus, gtk3, krb5, libc++, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, libdrm, libjpeg-turbo, libpng, libwebp, libflac, fontconfig, freetype, zlib, libxml2, libxslt, libopus, libsnappy"
 TERMUX_PKG_SUGGESTS="qt5-qtbase"
 TERMUX_PKG_BUILD_DEPENDS="qt5-qtbase, qt5-qtbase-cross-tools"
@@ -79,7 +79,7 @@ termux_step_configure() {
 
 	# Dummy librt.so
 	# Why not dummy a librt.a? Some of the binaries reference symbols only exists in Android
-	# for some reason, such as the `chrome_crashpad_handler`, which needs to link with 
+	# for some reason, such as the `chrome_crashpad_handler`, which needs to link with
 	# libprotobuf_lite.a, but it is hard to remove the usage of `android/log.h` in protobuf.
 	echo "INPUT(-llog -liconv -landroid-shmem)" > "$TERMUX_PREFIX/lib/librt.so"
 
@@ -351,7 +351,7 @@ termux_step_post_massage() {
 # When set `enable_nacl = true`, the following error occurs.
 # ninja: error: 'native_client/toolchain/linux_x86/pnacl_newlib/bin/arm-nacl-objcopy', needed by 'nacl_irt_arm.nexe', missing and no known rule to make it.
 # If we want to enable NaCi, maybe we should build the toolchain of NaCl too.
-# But I don't think this is necessary. NaCl existing or not will take little 
+# But I don't think this is necessary. NaCl existing or not will take little
 # influence on Chromium. So I'd like to disable NaCl.
 # #############################################################################
 
