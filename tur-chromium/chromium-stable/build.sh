@@ -2,10 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-_CHROMIUM_VERSION=124.0.6367.78
-TERMUX_PKG_VERSION=$_CHROMIUM_VERSION
-TERMUX_PKG_SRCURL=(https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$_CHROMIUM_VERSION.tar.xz)
-TERMUX_PKG_SHA256=(697ea9e8591e0a74deea260a50441711b1ea499ca19e91d6012c5b4d200d1acf)
+TERMUX_PKG_VERSION=124.0.6367.91
+TERMUX_PKG_SRCURL=https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$TERMUX_PKG_VERSION.tar.xz
+TERMUX_PKG_SHA256=376cdcdb46b23eca7f3e6cdb933f27e73968ffb537258d70be503850bbbf1787
 TERMUX_PKG_DEPENDS="atk, cups, dbus, gtk3, krb5, libc++, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, libdrm, libjpeg-turbo, libpng, libwebp, libflac, fontconfig, freetype, zlib, libxml2, libxslt, libopus, libsnappy"
 TERMUX_PKG_SUGGESTS="qt5-qtbase"
 TERMUX_PKG_BUILD_DEPENDS="qt5-qtbase, qt5-qtbase-cross-tools"
@@ -16,7 +15,7 @@ SYSTEM_LIBRARIES="    libdrm  fontconfig"
 # TERMUX_PKG_DEPENDS="libdrm, fontconfig"
 
 termux_step_post_get_source() {
-	python $TERMUX_SCRIPTDIR/common-files/apply-chromium-patches.py -v $_CHROMIUM_VERSION
+	python $TERMUX_SCRIPTDIR/common-files/apply-chromium-patches.py -v $TERMUX_PKG_VERSION
 
 	python3 build/linux/unbundle/replace_gn_files.py --system-libraries \
 		$SYSTEM_LIBRARIES
