@@ -2,10 +2,10 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-TERMUX_PKG_VERSION=125.0.6422.141
+TERMUX_PKG_VERSION=126.0.6478.55
 TERMUX_PKG_SRCURL=https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$TERMUX_PKG_VERSION.tar.xz
-TERMUX_PKG_SHA256=9966b50279d0cfaaf4b58570387f0d526388f8d5f6dd990e3f083a55d8d8e603
-TERMUX_PKG_DEPENDS="atk, cups, dbus, gtk3, krb5, libc++, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, libdrm, libjpeg-turbo, libpng, libwebp, libflac, fontconfig, freetype, zlib, libxml2, libxslt, libopus, libsnappy"
+TERMUX_PKG_SHA256=7ccef206f8c99e6a17b927b1b6d8018da808d75a0f46998282e0ca6cb80fe4c9
+TERMUX_PKG_DEPENDS="atk, cups, dbus, fontconfig, gtk3, krb5, libc++, libdrm, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, zlib"
 TERMUX_PKG_SUGGESTS="qt5-qtbase"
 TERMUX_PKG_BUILD_DEPENDS="qt5-qtbase, qt5-qtbase-cross-tools"
 # Chromium doesn't support i686 on Linux.
@@ -215,6 +215,7 @@ use_thin_lto = false
 # Enable rust
 custom_target_rust_abi_target = \"$CARGO_TARGET_NAME\"
 llvm_android_mainline = true
+exclude_unwind_tables = false
 " > $_common_args_file
 
 	if [ "$TERMUX_ARCH" = "arm" ]; then
@@ -255,7 +256,7 @@ llvm_android_mainline = true
 
 termux_step_make() {
 	cd $TERMUX_PKG_BUILDDIR
-	ninja -C out/Release chromedriver chrome chrome_crashpad_handler headless_shell
+	ninja -C out/Release chromedriver chrome chrome_crashpad_handler headless_shell || bash
 	rm -rf "$TERMUX_PKG_CACHEDIR/sysroot-$TERMUX_ARCH"
 }
 
