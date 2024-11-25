@@ -57,7 +57,7 @@ termux_step_configure() {
 	# Install amd64 rootfs and deps
 	env -i PATH="$PATH" sudo apt update
 	env -i PATH="$PATH" sudo apt install lsb-release -yq
-	env -i PATH="$PATH" sudo apt install libfontconfig1 libffi7 -yq
+	env -i PATH="$PATH" sudo apt install libfontconfig1 libffi8 -yq
 	env -i PATH="$PATH" sudo ./build/install-build-deps.sh --no-syms --no-android --no-arm --no-chromeos-fonts --no-nacl --no-prompt
 	build/linux/sysroot_scripts/install-sysroot.py --arch=amd64
 	local _amd64_sysroot_path="$(pwd)/build/linux/$(ls build/linux | grep 'amd64-sysroot')"
@@ -109,8 +109,6 @@ termux_step_configure() {
 		# This is needed to build cups
 		cp -Rf $TERMUX_PREFIX/bin/cups-config usr/bin/
 		chmod +x usr/bin/cups-config
-		# Cherry-pick LWG3545 for NDK r26
-		patch -p1 < $TERMUX_SCRIPTDIR/common-files/chromium-patches/sysroot-patches/libcxx-17-lwg3545.diff
 		popd
 		mv $TERMUX_PKG_TMPDIR/sysroot $TERMUX_PKG_CACHEDIR/sysroot-$TERMUX_ARCH
 	fi
@@ -129,7 +127,7 @@ termux_step_configure() {
 		_v8_toolchain_name="clang_x64_v8_arm64"
 	elif [ "$TERMUX_ARCH" = "arm" ]; then
 		# Install i386 rootfs and deps
-		env -i PATH="$PATH" sudo apt install libfontconfig1:i386 libffi7:i386 -yq
+		env -i PATH="$PATH" sudo apt install libfontconfig1:i386 libffi8:i386 -yq
 		env -i PATH="$PATH" sudo ./build/install-build-deps.sh --lib32 --no-syms --no-android --no-arm --no-chromeos-fonts --no-nacl --no-prompt
 		build/linux/sysroot_scripts/install-sysroot.py --arch=i386
 		local _i386_sysroot_path="$(pwd)/build/linux/$(ls build/linux | grep 'i386-sysroot')"
@@ -166,7 +164,7 @@ target_rpath = \"$TERMUX_PREFIX/lib\"
 target_sysroot = \"$_target_sysroot\"
 custom_toolchain = \"//build/toolchain/linux/unbundle:default\"
 custom_toolchain_clang_base_path = \"$TERMUX_STANDALONE_TOOLCHAIN\"
-custom_toolchain_clang_version = "17"
+custom_toolchain_clang_version = "18"
 host_toolchain = \"$TERMUX_PKG_CACHEDIR/custom-toolchain:host\"
 v8_snapshot_toolchain = \"$TERMUX_PKG_CACHEDIR/custom-toolchain:$_v8_toolchain_name\"
 clang_use_chrome_plugins = false
@@ -181,6 +179,10 @@ use_custom_libcxx = false
 use_custom_libcxx_for_host = true
 use_allocator_shim = false
 use_partition_alloc_as_malloc = false
+enable_backup_ref_ptr_slow_checks = false
+enable_dangling_raw_ptr_checks = false
+enable_dangling_raw_ptr_feature_flag = false
+backup_ref_ptr_extra_oob_checks = false
 enable_backup_ref_ptr_support = false
 enable_pointer_compression_support = false
 use_nss_certs = true
