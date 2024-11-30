@@ -2,9 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-TERMUX_PKG_VERSION=128.0.6613.137
+TERMUX_PKG_VERSION=129.0.6668.100
 TERMUX_PKG_SRCURL=https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$TERMUX_PKG_VERSION.tar.xz
-TERMUX_PKG_SHA256=e1d39c170dfdc2627a7b003e11d77f04a578b8e1cfe41e714cdaa345c91f4943
+TERMUX_PKG_SHA256=281daed29a5cb546f6273130035d9980666d2232f356ad95fc06af3c90121bc2
 TERMUX_PKG_DEPENDS="atk, cups, dbus, fontconfig, gtk3, krb5, libc++, libdrm, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, zlib"
 # Chromium doesn't support i686 on Linux.
 TERMUX_PKG_BLACKLISTED_ARCHES="i686"
