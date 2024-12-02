@@ -2,12 +2,10 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-TERMUX_PKG_VERSION=126.0.6478.182
+TERMUX_PKG_VERSION=127.0.6533.119
 TERMUX_PKG_SRCURL=https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$TERMUX_PKG_VERSION.tar.xz
-TERMUX_PKG_SHA256=3939f5b3116ebd3cb15ff8c7059888f6b00f4cfa8a77bde983ee4ce5d0eea427
+TERMUX_PKG_SHA256=acc9e3f9fd2d180b8831865a1ac4f5cdd9ffe6211f47f467296d9ee1be2a577e
 TERMUX_PKG_DEPENDS="atk, cups, dbus, fontconfig, gtk3, krb5, libc++, libdrm, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, zlib"
-TERMUX_PKG_SUGGESTS="qt5-qtbase"
-TERMUX_PKG_BUILD_DEPENDS="qt5-qtbase, qt5-qtbase-cross-tools"
 # Chromium doesn't support i686 on Linux.
 TERMUX_PKG_BLACKLISTED_ARCHES="i686"
 
@@ -17,6 +15,9 @@ SYSTEM_LIBRARIES="    libdrm  fontconfig"
 termux_step_post_get_source() {
 	python3 build/linux/unbundle/replace_gn_files.py --system-libraries \
 		$SYSTEM_LIBRARIES
+
+	# Remove the source file to keep more space
+	rm -f "$TERMUX_PKG_CACHEDIR/chromium-$TERMUX_PKG_VERSION.tar.xz"
 }
 
 termux_step_configure() {
@@ -47,9 +48,6 @@ termux_step_configure() {
 	mkdir -p $TERMUX_PKG_CACHEDIR/host-pkg-config-bin
 	ln -s $_host_pkg_config $TERMUX_PKG_CACHEDIR/host-pkg-config-bin/pkg-config
 	export PATH="$TERMUX_PKG_CACHEDIR/host-pkg-config-bin:$PATH"
-
-	# For qt build
-	export PATH="$TERMUX_PREFIX/opt/qt/cross/bin:$PATH"
 
 	# Install amd64 rootfs and deps
 	env -i PATH="$PATH" sudo apt update
@@ -197,7 +195,7 @@ angle_enable_abseil = false
 is_component_ffmpeg = true
 ffmpeg_branding = \"Chrome\"
 proprietary_codecs = true
-use_qt = true
+use_qt = false
 use_libpci = false
 use_alsa = false
 use_pulseaudio = true
@@ -229,7 +227,6 @@ exclude_unwind_tables = false
 			s|@HOST_AR@|$(command -v llvm-ar)|g
 			s|@HOST_NM@|$(command -v llvm-nm)|g
 			s|@HOST_IS_CLANG@|true|g
-			s|@HOST_USE_GOLD@|false|g
 			s|@HOST_SYSROOT@|$_amd64_sysroot_path|g
 			" $TERMUX_PKG_CACHEDIR/custom-toolchain/BUILD.gn
 	sed -i "s|@V8_CC@|$_host_cc|g
@@ -241,7 +238,6 @@ exclude_unwind_tables = false
 			s|@V8_CURRENT_CPU@|$_v8_current_cpu|g
 			s|@V8_V8_CURRENT_CPU@|$_target_cpu|g
 			s|@V8_IS_CLANG@|true|g
-			s|@V8_USE_GOLD@|false|g
 			s|@V8_SYSROOT@|$_v8_sysroot_path|g
 			" $TERMUX_PKG_CACHEDIR/custom-toolchain/BUILD.gn
 
@@ -253,7 +249,7 @@ exclude_unwind_tables = false
 
 termux_step_make() {
 	cd $TERMUX_PKG_BUILDDIR
-	ninja -C out/Release chromedriver chrome chrome_crashpad_handler headless_shell
+	ninja -C out/Release chromedriver chrome chrome_crashpad_handler headless_shell -k 0
 	rm -rf "$TERMUX_PKG_CACHEDIR/sysroot-$TERMUX_ARCH"
 }
 
@@ -306,7 +302,7 @@ termux_step_make_install() {
 		libffmpeg.so
 
 		# Qt
-		libqt5_shim.so
+		# libqt5_shim.so
 	)
 
 	cp "${normal_files[@]/#/out/Release/}" "$TERMUX_PREFIX/opt/$TERMUX_PKG_NAME/"
