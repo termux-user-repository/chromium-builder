@@ -2,9 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-TERMUX_PKG_VERSION=130.0.6723.116
+TERMUX_PKG_VERSION=131.0.6778.264
 TERMUX_PKG_SRCURL=https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$TERMUX_PKG_VERSION.tar.xz
-TERMUX_PKG_SHA256=968799e41158fdcc85af6f5547d3dd4730d6e51219e43aa2f1ab6ab5e00582ba
+TERMUX_PKG_SHA256=7e02c65865a3095180d60838d2d7a912873d8d4f582c27c2afb9ef876152f2a5
 TERMUX_PKG_DEPENDS="atk, cups, dbus, fontconfig, gtk3, krb5, libc++, libdrm, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, zlib"
 # Chromium doesn't support i686 on Linux.
 TERMUX_PKG_BLACKLISTED_ARCHES="i686"
@@ -32,14 +32,6 @@ termux_step_configure() {
 		touch "$TERMUX_PKG_CACHEDIR/.depot_tools-fetched"
 	fi
 	export PATH="$TERMUX_PKG_CACHEDIR/depot_tools:$PATH"
-
-	################################################################
-	# Please dont use these keys outside of Termux User Repository #
-	# You can create your own at:                                  #
-	# http://www.chromium.org/developers/how-tos/api-keys          #
-	################################################################
-	local _google_api_key _google_default_client_id _google_default_client_secret
-	eval "$(base64 -d < $TERMUX_PKG_BUILDER_DIR/google-api-keys.base64enc)"
 
 	# Remove termux's dummy pkg-config
 	local _target_pkg_config=$(command -v pkg-config)
@@ -113,13 +105,16 @@ termux_step_configure() {
 	local _host_cc="$_clang_base_path/bin/clang"
 	local _host_cxx="$_clang_base_path/bin/clang++"
 	local _host_clang_version=$($_host_cc --version | grep -m1 version | sed -E 's|.*\bclang version ([0-9]+).*|\1|')
+	local _target_clang_base_path="$TERMUX_STANDALONE_TOOLCHAIN"
+	local _target_cc="$_target_clang_base_path/bin/clang"
+	local _target_clang_version=$($_target_cc --version | grep -m1 version | sed -E 's|.*\bclang version ([0-9]+).*|\1|')
 	local _target_cpu _target_sysroot="$TERMUX_PKG_CACHEDIR/sysroot-$TERMUX_ARCH"
 	local _v8_toolchain_name _v8_current_cpu _v8_sysroot_path
 	if [ "$TERMUX_ARCH" = "aarch64" ]; then
 		_target_cpu="arm64"
-		_v8_current_cpu="x64"
+		_v8_current_cpu="arm64"
 		_v8_sysroot_path="$_amd64_sysroot_path"
-		_v8_toolchain_name="clang_x64_v8_arm64"
+		_v8_toolchain_name="host"
 	elif [ "$TERMUX_ARCH" = "arm" ]; then
 		# Install i386 rootfs and deps
 		env -i PATH="$PATH" sudo apt install libfontconfig1:i386 libffi8:i386 -yq
@@ -134,7 +129,7 @@ termux_step_configure() {
 		_target_cpu="x64"
 		_v8_current_cpu="x64"
 		_v8_sysroot_path="$_amd64_sysroot_path"
-		_v8_toolchain_name="clang_x64"
+		_v8_toolchain_name="host"
 	fi
 
 	local _common_args_file=$TERMUX_PKG_TMPDIR/common-args-file
@@ -142,11 +137,6 @@ termux_step_configure() {
 	touch $_common_args_file
 
 	echo "
-# Set google key to disable the warning slogan
-# Please DO NOT USE THIS KEY OUTSIDE OF TUR!
-google_api_key = \"$_google_api_key\"
-google_default_client_id = \"$_google_default_client_id\"
-google_default_client_secret = \"$_google_default_client_secret\"
 # Do official build to decrease file size
 is_official_build = true
 is_debug = false
@@ -158,8 +148,8 @@ target_cpu = \"$_target_cpu\"
 target_rpath = \"$TERMUX_PREFIX/lib\"
 target_sysroot = \"$_target_sysroot\"
 custom_toolchain = \"//build/toolchain/linux/unbundle:default\"
-custom_toolchain_clang_base_path = \"$TERMUX_STANDALONE_TOOLCHAIN\"
-custom_toolchain_clang_version = "18"
+custom_toolchain_clang_base_path = \"$_target_clang_base_path\"
+custom_toolchain_clang_version = \"$_target_clang_version\"
 host_toolchain = \"$TERMUX_PKG_CACHEDIR/custom-toolchain:host\"
 v8_snapshot_toolchain = \"$TERMUX_PKG_CACHEDIR/custom-toolchain:$_v8_toolchain_name\"
 clang_use_chrome_plugins = false
@@ -219,8 +209,9 @@ exclude_unwind_tables = false
 	fi
 
 	# Use custom toolchain
+	rm -rf $TERMUX_PKG_CACHEDIR/custom-toolchain
 	mkdir -p $TERMUX_PKG_CACHEDIR/custom-toolchain
-	cp -f $TERMUX_PKG_BUILDER_DIR/toolchain.gn.in $TERMUX_PKG_CACHEDIR/custom-toolchain/BUILD.gn
+	cp -f $TERMUX_PKG_BUILDER_DIR/toolchain-template/host-toolchain.gn.in $TERMUX_PKG_CACHEDIR/custom-toolchain/BUILD.gn
 	sed -i "s|@HOST_CC@|$_host_cc|g
 			s|@HOST_CXX@|$_host_cxx|g
 			s|@HOST_LD@|$_host_cxx|g
@@ -228,18 +219,22 @@ exclude_unwind_tables = false
 			s|@HOST_NM@|$(command -v llvm-nm)|g
 			s|@HOST_IS_CLANG@|true|g
 			s|@HOST_SYSROOT@|$_amd64_sysroot_path|g
+			s|@V8_CURRENT_CPU@|$_target_cpu|g
 			" $TERMUX_PKG_CACHEDIR/custom-toolchain/BUILD.gn
-	sed -i "s|@V8_CC@|$_host_cc|g
-			s|@V8_CXX@|$_host_cxx|g
-			s|@V8_LD@|$_host_cxx|g
-			s|@V8_AR@|$(command -v llvm-ar)|g
-			s|@V8_NM@|$(command -v llvm-nm)|g
-			s|@V8_TOOLCHAIN_NAME@|$_v8_toolchain_name|g
-			s|@V8_CURRENT_CPU@|$_v8_current_cpu|g
-			s|@V8_V8_CURRENT_CPU@|$_target_cpu|g
-			s|@V8_IS_CLANG@|true|g
-			s|@V8_SYSROOT@|$_v8_sysroot_path|g
-			" $TERMUX_PKG_CACHEDIR/custom-toolchain/BUILD.gn
+	if [ "$_v8_toolchain_name" != "host" ]; then
+		cat $TERMUX_PKG_BUILDER_DIR/toolchain-template/v8-toolchain.gn.in >> $TERMUX_PKG_CACHEDIR/custom-toolchain/BUILD.gn
+		sed -i "s|@V8_CC@|$_host_cc|g
+				s|@V8_CXX@|$_host_cxx|g
+				s|@V8_LD@|$_host_cxx|g
+				s|@V8_AR@|$(command -v llvm-ar)|g
+				s|@V8_NM@|$(command -v llvm-nm)|g
+				s|@V8_TOOLCHAIN_NAME@|$_v8_toolchain_name|g
+				s|@V8_CURRENT_CPU@|$_v8_current_cpu|g
+				s|@V8_V8_CURRENT_CPU@|$_target_cpu|g
+				s|@V8_IS_CLANG@|true|g
+				s|@V8_SYSROOT@|$_v8_sysroot_path|g
+				" $TERMUX_PKG_CACHEDIR/custom-toolchain/BUILD.gn
+	fi
 
 	# Generate ninja files
 	mkdir -p $TERMUX_PKG_BUILDDIR/out/Release
@@ -249,8 +244,31 @@ exclude_unwind_tables = false
 
 termux_step_make() {
 	cd $TERMUX_PKG_BUILDDIR
-	ninja -C out/Release chromedriver chrome chrome_crashpad_handler headless_shell -k 0
-	rm -rf "$TERMUX_PKG_CACHEDIR/sysroot-$TERMUX_ARCH"
+
+	# Build v8 snapshot and tools
+	time ninja -C out/Release \
+					v8_context_snapshot \
+					run_mksnapshot_default \
+					run_torque \
+					generate_bytecode_builtins_list \
+					v8:run_gen-regexp-special-case
+
+	# Build host tools
+	time ninja -C out/Release \
+					generate_top_domain_list_variables_file \
+					generate_chrome_colors_info \
+					character_data \
+					gen_root_store_inc \
+					generate_transport_security_state \
+					generate_top_domains_trie
+
+	# Build swiftshader
+	time ninja -C out/Release \
+						third_party/swiftshader/src/Vulkan:icd_file \
+						third_party/swiftshader/src/Vulkan:swiftshader_libvulkan
+
+	# Build other components
+	ninja -C out/Release chromedriver chrome chrome_crashpad_handler headless_shell
 }
 
 termux_step_make_install() {
