@@ -2,15 +2,15 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-TERMUX_PKG_VERSION=131.0.6778.264
+TERMUX_PKG_VERSION=132.0.6834.159
 TERMUX_PKG_SRCURL=https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$TERMUX_PKG_VERSION.tar.xz
-TERMUX_PKG_SHA256=7e02c65865a3095180d60838d2d7a912873d8d4f582c27c2afb9ef876152f2a5
+TERMUX_PKG_SHA256=564cc8a258b16d1c6151721a2a72e43ba80642326b33aa79439bba354e686068
 TERMUX_PKG_DEPENDS="atk, cups, dbus, fontconfig, gtk3, krb5, libc++, libdrm, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, zlib"
 # Chromium doesn't support i686 on Linux.
 TERMUX_PKG_BLACKLISTED_ARCHES="i686"
 
-SYSTEM_LIBRARIES="    libdrm  fontconfig"
-# TERMUX_PKG_DEPENDS="libdrm, fontconfig"
+SYSTEM_LIBRARIES="    fontconfig"
+# TERMUX_PKG_DEPENDS="fontconfig"
 
 termux_step_post_get_source() {
 	python3 build/linux/unbundle/replace_gn_files.py --system-libraries \
@@ -158,7 +158,7 @@ chrome_pgo_phase = 0
 treat_warnings_as_errors = false
 # Use system libraries as little as possible
 use_system_freetype = false
-use_system_libdrm = true
+# use_system_libdrm = true
 use_system_libffi = true
 use_custom_libcxx = false
 use_custom_libcxx_for_host = true
