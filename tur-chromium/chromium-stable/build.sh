@@ -2,10 +2,11 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-TERMUX_PKG_VERSION=133.0.6943.141
+TERMUX_PKG_VERSION=134.0.6998.165
 TERMUX_PKG_SRCURL=https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$TERMUX_PKG_VERSION.tar.xz
-TERMUX_PKG_SHA256=0b3b15aa03f128a6b3d7ff67a7492bfaa2ffbb4acd80664b9ff320fd470c68be
+TERMUX_PKG_SHA256=6c2f2a4fca77f6428171215ffd688e68a09849b75fae43aed980a5f77eeb097d
 TERMUX_PKG_DEPENDS="atk, cups, dbus, fontconfig, gtk3, krb5, libc++, libdrm, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, zlib"
+TERMUX_PKG_BUILD_DEPENDS="libffi-static"
 # Chromium doesn't support i686 on Linux.
 TERMUX_PKG_EXCLUDED_ARCHES="i686"
 
@@ -156,7 +157,7 @@ treat_warnings_as_errors = false
 # Use system libraries as little as possible
 use_system_freetype = false
 # use_system_libdrm = true
-use_system_libffi = true
+use_system_libffi = false
 use_custom_libcxx = false
 use_custom_libcxx_for_host = true
 use_allocator_shim = false
@@ -182,7 +183,8 @@ angle_enable_abseil = false
 is_component_ffmpeg = true
 ffmpeg_branding = \"Chrome\"
 proprietary_codecs = true
-use_qt = false
+use_qt5 = false
+use_qt6 = false
 use_libpci = false
 use_alsa = false
 use_pulseaudio = true
