@@ -2,9 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="Chongyun Lee <uchkks@protonmail.com>"
-TERMUX_PKG_VERSION=135.0.7049.114
+TERMUX_PKG_VERSION=136.0.7103.59
 TERMUX_PKG_SRCURL=https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$TERMUX_PKG_VERSION.tar.xz
-TERMUX_PKG_SHA256=aa85ce2bf36ed71261109fd7e700fac596a28b7be035a40a518c6a6fcf973c22
+TERMUX_PKG_SHA256=3ce1ef863767b3a72058a0f0ceb150cc7b8a9ba8bc24e19c98d25f8b395a8cfe
 TERMUX_PKG_DEPENDS="atk, cups, dbus, fontconfig, gtk3, krb5, libc++, libdrm, libevdev, libxkbcommon, libminizip, libnss, libwayland, libx11, mesa, openssl, pango, pulseaudio, zlib"
 TERMUX_PKG_BUILD_DEPENDS="libffi-static"
 # Chromium doesn't support i686 on Linux.
@@ -24,7 +24,6 @@ termux_step_post_get_source() {
 termux_step_configure() {
 	cd $TERMUX_PKG_SRCDIR
 	termux_setup_ninja
-	termux_setup_nodejs
 
 	# Fetch depot_tools
 	export DEPOT_TOOLS_UPDATE=0
@@ -43,8 +42,6 @@ termux_step_configure() {
 	export PATH="$TERMUX_PKG_CACHEDIR/host-pkg-config-bin:$PATH"
 
 	# Install amd64 rootfs and deps
-	env -i PATH="$PATH" sudo apt update
-	env -i PATH="$PATH" sudo apt install libfontconfig1 libcups2-dev -yq
 	build/linux/sysroot_scripts/install-sysroot.py --arch=amd64
 	local _amd64_sysroot_path="$(pwd)/build/linux/$(ls build/linux | grep 'amd64-sysroot')"
 
@@ -58,9 +55,13 @@ termux_step_configure() {
 	fi
 
 	# Link to system tools required by the build
-	mkdir -p third_party/node/linux/node-linux-x64/bin
-	ln -sf $(command -v node) third_party/node/linux/node-linux-x64/bin/
+	mkdir -p third_party/jdk/current/bin
 	ln -sf $(command -v java) third_party/jdk/current/bin/
+
+	# Install nodejs
+	if [ ! -f "third_party/node/linux/node-linux-x64/bin/node" ]; then
+		./third_party/node/update_node_binaries
+	fi
 
 	# Dummy librt.so
 	# Why not dummy a librt.a? Some of the binaries reference symbols only exists in Android
@@ -116,7 +117,6 @@ termux_step_configure() {
 		_v8_toolchain_name="host"
 	elif [ "$TERMUX_ARCH" = "arm" ]; then
 		# Install i386 rootfs and deps
-		env -i PATH="$PATH" sudo apt install libfontconfig1:i386 libexpat1:i386 libglib2.0-0t64:i386 -yq
 		build/linux/sysroot_scripts/install-sysroot.py --arch=i386
 		local _i386_sysroot_path="$(pwd)/build/linux/$(ls build/linux | grep 'i386-sysroot')"
 		_target_cpu="arm"
