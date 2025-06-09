@@ -1,0 +1,12 @@
+https://github.com/chromium/chromium/commit/48b64da89b3ecb7ccb576a334b19b3066dd2b793
+
+--- a/chrome/browser/ui/safety_hub/disruptive_notification_permissions_manager.h
++++ b/chrome/browser/ui/safety_hub/disruptive_notification_permissions_manager.h
+@@ -6,6 +6,7 @@
+ #define CHROME_BROWSER_UI_SAFETY_HUB_DISRUPTIVE_NOTIFICATION_PERMISSIONS_MANAGER_H_
+ 
+ #include <memory>
++#include <set>
+ 
+ #include "base/scoped_observation.h"
+ #include "base/time/clock.h"
