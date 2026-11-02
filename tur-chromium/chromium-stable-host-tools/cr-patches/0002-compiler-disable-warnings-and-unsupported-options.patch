@@ -1,0 +1,44 @@
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -588,7 +588,7 @@
+   if (is_clang) {
+     # Flags for diagnostics.
+     cflags += [ "-fcolor-diagnostics" ]
+-    if (!is_wasm) {
++    if (!is_wasm && false) {
+       if (!is_win) {
+         cflags += [ "-fdiagnostics-show-inlining-chain" ]
+       } else {
+@@ -629,7 +629,7 @@
+     # The performance improvement does not seem worth the risk. See
+     # https://crbug.com/484082200 for background and https://crrev.com/c/7593035
+     # for discussion.
+-    if (!is_wasm) {
++    if (!is_wasm && false) {
+       cflags += [ "-fno-lifetime-dse" ]
+     }
+ 
+@@ -2031,6 +2032,12 @@
+       # should always be added for clang builds.
+       cflags += [ "-Wexit-time-destructors" ]
+     }
++
++    # Ignore unknown options and pragmas
++    cflags += [
++      "-Wno-unknown-warning-option",
++      "-Wno-unknown-pragmas",
++    ]
+   }
+ 
+   # TODO(crbug.com/354162568): Clean up and enable.
+--- a/build/config/sanitizers/sanitizers.gni
++++ b/build/config/sanitizers/sanitizers.gni
+@@ -526,7 +526,7 @@
+     # *   the build is not for Wasm, which doesn't recognize any of
+     #     these sanitizer flags (see https://crrev.com/c/7911761), and
+     # *   the build is Clang, which provides the UBSan instrumentation.
+-    _condition = !is_ubsan && !is_wasm && is_clang
++    _condition = !is_ubsan && !is_wasm && is_clang && false
+     if (defined(invoker.condition)) {
+       _condition = invoker.condition && _condition
+     }
