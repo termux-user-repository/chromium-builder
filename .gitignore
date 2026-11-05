@@ -9,3 +9,6 @@
 !setup-tur-chromium-builder.sh
 !tur-chromium
 !tur-chromium/**
+!common-files
+!common-files/building-system-patches
+!common-files/building-system-patches/0101-add-tur-chromium-repo.patch

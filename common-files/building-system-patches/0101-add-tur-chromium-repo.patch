@@ -1,0 +1,10 @@
+--- a/scripts/bin/build-package-dry-run-simulation.sh
++++ b/scripts/bin/build-package-dry-run-simulation.sh
+@@ -16,6 +16,7 @@
+ tur-on-device
+ tur-multilib
+ tur-hacking
++tur-chromium
+ )
+ 
+ # Please keep synchronized with the logic of lines 468-547 of 'build-package.sh'.
