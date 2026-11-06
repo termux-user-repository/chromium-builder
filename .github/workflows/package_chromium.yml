@@ -281,7 +281,7 @@ jobs:
         compression-level: 0
 
     - name: Upload host-tools artifact
-      if: ${{ always() && contains(steps.build-info.outputs.packages, 'chromium-stable-host-tools') && ((github.event_name == 'push' && steps.build-info.outputs.merge-push == 'true') || github.event_name == 'workflow_dispatch') }}
+      if: ${{ always() && contains(steps.build-info.outputs.packages, 'chromium-stable-host-tools') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
       uses: actions/upload-artifact@v6
       with:
         name: host-tools-${{ matrix.target_arch }}
@@ -289,7 +289,7 @@ jobs:
         if-no-files-found: warn
 
     - name: Upload chromium-stable artifact
-      if: ${{ always() && contains(steps.build-info.outputs.packages, 'chromium-stable') && ((github.event_name == 'push' && steps.build-info.outputs.merge-push == 'true') || github.event_name == 'workflow_dispatch') }}
+      if: ${{ always() && contains(steps.build-info.outputs.packages, 'chromium-stable') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
       uses: actions/upload-artifact@v6
       with:
         name: chromium-stable-${{ matrix.target_arch }}
@@ -330,7 +330,7 @@ jobs:
         HOST_TOOLS_VERSION=$(grep -m1 'TERMUX_PKG_VERSION=' tur-chromium/chromium-stable-host-tools/build.sh | cut -d'"' -f2)
         TAG="host-tools-v${HOST_TOOLS_VERSION}"
         echo "Publishing host-tools ${HOST_TOOLS_VERSION} to release ${TAG}"
-        ls -la ./host-tools/
+        ls -la ./host-tools/ 2>/dev/null || true
         ASSETS=$(find ./host-tools -name 'chromium-stable-host-tools-*.tar.zst' | sort)
         if [ -z "$ASSETS" ]; then
           echo "No host-tools assets found, skipping."
