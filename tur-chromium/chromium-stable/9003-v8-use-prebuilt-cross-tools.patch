@@ -1,0 +1,115 @@
+--- a/v8/BUILD.gn
++++ b/v8/BUILD.gn
+@@ -2720,7 +2720,9 @@ template("run_torque") {
+       "tools/gcmole/:*",
+     ]
+ 
++if (false) {
+     deps = [ ":torque($toolchain)" ]
++}
+ 
+     if (is_msan) {
+       configs = [
+@@ -2762,8 +2764,14 @@ template("run_torque") {
+       ]
+     }
+ 
++if (false) {
++    arg0_prefix = "./"
++} else {
++    arg0_prefix = "@TERMUX_CACHE_DIR@/chromium-host-tools/"
++}
++
+     args = [
+-      "./" + rebase_path(
++      arg0_prefix + rebase_path(
+               get_label_info(":torque($toolchain)", "root_out_dir") + "/torque",
+               root_build_dir),
+       "-o",
+@@ -2978,9 +2986,18 @@ v8_cluster_source_set("torque_generated_definitions") {
+ action("generate_bytecode_builtins_list") {
+   script = "tools/run.py"
+   outputs = [ "$target_gen_dir/builtins-generated/bytecodes-builtins-list.h" ]
++if (false) {
+   deps = [ ":bytecode_builtins_list_generator($v8_generator_toolchain)" ]
++}
++
++if (false) {
++  arg0_prefix = "./"
++} else {
++  arg0_prefix = "@TERMUX_CACHE_DIR@/chromium-host-tools/"
++}
++
+   args = [
+-    "./" + rebase_path(
++    arg0_prefix + rebase_path(
+             get_label_info(
+                     ":bytecode_builtins_list_generator($v8_generator_toolchain)",
+                     "root_out_dir") + "/bytecode_builtins_list_generator",
+@@ -3009,12 +3026,16 @@ template("run_mksnapshot") {
+   }
+ 
+   action("run_mksnapshot_" + name) {
++if (false) {
+     deps = [ ":mksnapshot($v8_snapshot_toolchain)" ]
+     if (v8_verify_deterministic_mksnapshot) {
+       # We archive the snapshot executable when verifying snapshot
+       # determinism to ease debugging.
+       data_deps = [ ":mksnapshot($v8_snapshot_toolchain)" ]
+     }
++} else {
++    deps = []
++}
+ 
+     if (is_msan) {
+       configs = [
+@@ -3052,6 +3073,7 @@ template("run_mksnapshot") {
+ 
+     args = []
+ 
++if (false) {
+     if (v8_verify_deterministic_mksnapshot) {
+       # Output redirection must be the first argument to run.py. We capture
+       # output when verifying snapshot determinism for debugging.
+@@ -3062,9 +3084,16 @@ template("run_mksnapshot") {
+       ]
+       data += [ "$root_out_dir/mksnapshot_output${suffix}.log" ]
+     }
++}
++
++if (false) {
++    arg0_prefix = "./"
++} else {
++    arg0_prefix = "@TERMUX_CACHE_DIR@/chromium-host-tools/"
++}
+ 
+     args += [
+-      "./" + rebase_path(get_label_info(":mksnapshot($v8_snapshot_toolchain)",
++      arg0_prefix + rebase_path(get_label_info(":mksnapshot($v8_snapshot_toolchain)",
+                                         "root_out_dir") + "/mksnapshot",
+                          root_build_dir),
+       "--turbo_instruction_scheduling",
+@@ -8457,14 +8486,22 @@ if (v8_enable_i18n_support) {
+ 
+     script = "tools/run.py"
+ 
++if (false) {
+     deps = [ ":gen-regexp-special-case($v8_generator_toolchain)" ]
++}
+ 
+     output_file = "$target_gen_dir/src/regexp/special-case.cc"
+ 
+     outputs = [ output_file ]
+ 
++if (false) {
++    arg0_prefix = "./"
++} else {
++    arg0_prefix = "@TERMUX_CACHE_DIR@/chromium-host-tools/"
++}
++
+     args = [
+-      "./" + rebase_path(
++      arg0_prefix + rebase_path(
+               get_label_info(
+                       ":gen-regexp-special-case($v8_generator_toolchain)",
+                       "root_out_dir") + "/gen-regexp-special-case",

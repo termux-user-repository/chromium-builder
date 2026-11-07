@@ -373,7 +373,9 @@ jobs:
       if: ${{ steps.check-merge.outputs.skip-upload != 'true' }}
       run: |
         CHROMIUM_VERSION=$(grep -m1 'TERMUX_PKG_VERSION=' tur-chromium/chromium-stable/build.sh | cut -d'"' -f2)
-        TAG="chromium-v${CHROMIUM_VERSION}"
+        # Historical chromium releases use the plain version as the tag name,
+        # only the asset filenames carry the chromium-v prefix.
+        TAG="${CHROMIUM_VERSION}"
         echo "Publishing chromium-stable ${CHROMIUM_VERSION} to release ${TAG}"
         ZIPS=$(find ./chromium-stable -name 'chromium-v*-linux-*.zip' | sort)
         if [ -z "$ZIPS" ]; then
@@ -388,5 +390,5 @@ jobs:
         popd
         # Create the release (one tag per version) then upload zips + checksums.
         gh release create "$TAG" ./release-assets/* --repo "$GITHUB_REPOSITORY" \
-          --title "$TAG" --notes "Chromium stable ${CHROMIUM_VERSION}" 2>/dev/null || true
+          --title "Chromium ${CHROMIUM_VERSION} for Termux" --notes "Chromium stable ${CHROMIUM_VERSION}" 2>/dev/null || true
         gh release upload "$TAG" ./release-assets/* --repo "$GITHUB_REPOSITORY" --clobber
