@@ -336,9 +336,17 @@ jobs:
           echo "No host-tools assets found, skipping."
           exit 0
         fi
+        # Compose the release notes with checksums.
+        {
+          echo "## Checksums"
+          echo '```'
+          (cd ./host-tools && sha256sum chromium-stable-host-tools-*.tar.zst | sort -k2 | sed 's/  / /')
+          echo '```'
+        } > ./release-notes.md
         # Create the release (one tag per version) then upload all arches.
         gh release create "$TAG" $ASSETS --repo "$GITHUB_REPOSITORY" \
-          --title "$TAG" --notes "Host tools for chromium-stable ${HOST_TOOLS_VERSION}" 2>/dev/null || true
+          --title "$TAG" --notes-file ./release-notes.md 2>/dev/null || true
+        gh release edit "$TAG" --notes-file ./release-notes.md --repo "$GITHUB_REPOSITORY" || true
         gh release upload "$TAG" $ASSETS --repo "$GITHUB_REPOSITORY" --clobber
 
   upload-chromium:
@@ -388,7 +396,15 @@ jobs:
         pushd ./release-assets
         sha256sum chromium-v*-linux-*.zip | sort -k2 > SHA256SUMS
         popd
+        # Compose the release notes with checksums, like the old releases.
+        {
+          echo "## Checksums"
+          echo '```'
+          sed 's/  / /' ./release-assets/SHA256SUMS
+          echo '```'
+        } > ./release-notes.md
         # Create the release (one tag per version) then upload zips + checksums.
         gh release create "$TAG" ./release-assets/* --repo "$GITHUB_REPOSITORY" \
-          --title "Chromium ${CHROMIUM_VERSION} for Termux" --notes "Chromium stable ${CHROMIUM_VERSION}" 2>/dev/null || true
+          --title "Chromium ${CHROMIUM_VERSION} for Termux" --notes-file ./release-notes.md 2>/dev/null || true
+        gh release edit "$TAG" --notes-file ./release-notes.md --repo "$GITHUB_REPOSITORY" || true
         gh release upload "$TAG" ./release-assets/* --repo "$GITHUB_REPOSITORY" --clobber
