@@ -68,9 +68,11 @@ download_ci_artifacts() {
 
 	# Also extract the prebuilt host-tools tarball and chromium zip (if
 	# present) so that the release-upload steps can reuse them without
-	# rebuilding.
+	# rebuilding. Note: upload-artifact v4+ stores the contents of the
+	# search path relative to its root, so these files live at the top
+	# level of the artifact archive without an artifacts/ prefix.
 	mkdir -p artifacts
-	unzip -o "${CI_ARTIFACT_ZIP}" 'artifacts/chromium-stable-host-tools-*' 'artifacts/chromium-v*' -d . >/dev/null 2>&1 || true
+	unzip -o "${CI_ARTIFACT_ZIP}" 'chromium-stable-host-tools-*' 'chromium-v*' -d artifacts || true
 }
 
 mask_output() {
