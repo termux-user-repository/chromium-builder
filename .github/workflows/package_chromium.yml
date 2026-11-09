@@ -215,6 +215,15 @@ jobs:
           ./scripts/lint-packages.sh "${package_recipes[@]}"
         fi
 
+    - name: Enable zram
+      if: ${{ steps.build-info.outputs.skip-building != 'true' }}
+      uses: ./.github/actions/zram
+      with:
+        algorithm: zstd
+        size: 16G
+        priority: 100
+        device_name: /dev/zram0
+
     - name: Free additional disk space
       if: ${{ steps.build-info.outputs.skip-building != 'true' }}
       run: |
