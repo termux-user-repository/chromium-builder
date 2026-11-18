@@ -1,9 +1,9 @@
 --- a/scripts/bin/build-package-dry-run-simulation.sh
 +++ b/scripts/bin/build-package-dry-run-simulation.sh
 @@ -16,6 +16,7 @@
- tur-on-device
  tur-multilib
  tur-hacking
+ tur-nightly
 +tur-chromium
  )
  
